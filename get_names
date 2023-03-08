@@ -1,0 +1,122 @@
+
+import pprint
+import random
+import requests
+import urllib.request
+import time
+from bs4 import BeautifulSoup
+from selenium import webdriver  
+from selenium.common.exceptions import NoSuchElementException  
+from selenium.webdriver.common.keys import Keys  
+from bs4 import BeautifulSoup
+import pandas as pd
+import pyodbc
+import sqlalchemy
+
+
+pp = pprint.PrettyPrinter(indent=4)
+
+
+conn = pyodbc.connect(
+"Driver={SQL Server};"
+"Server=DESKTOP-F86F289;"
+"Database =Stonks;"
+"Trusted_Connection=yes;")
+data = pd.read_sql("SELECT TOP(100000) * FROM Stonks.dbo.stocks", conn)
+
+#links = data['Links']
+
+ticker = []
+name_df = []
+ticker_names = []
+for x in data['ticker'][10000:]:
+    ticker.append(x)
+for x in data['name_df'][10000:]:
+    ticker_names.append(x)
+
+#data_2= pd.read_sql("SELECT TOP(100000) * FROM Stonks.dbo.balance_sheet", conn)
+#ticker_2 = []
+#name_df_2 = []
+#ticker_names_2 = []
+#for x in data_2['Ticker']:
+    #ticker_2.append(x)
+#for x in data_2['Name_df']:
+    #ticker_names_2.append(x)
+
+#ticker_2 = list(set(ticker_2))
+#ticker = [x for x in ticker if x != ticker_2]
+
+#ticker_names_2 = list(set(ticker_names_2))
+#ticker_names = [x for x in ticker_names if x != ticker_names_2]
+
+
+df = pd.DataFrame()
+
+dates = []
+ticker_df = []
+name_df = []
+
+List_of_Balance_sheet = ["Cash On Hand","Receivables","Inventory","Pre-Paid Expenses","Other Current Assets","Total Current Assets","Property, Plant, And Equipment",
+"Long-Term Investments","Goodwill And Intangible Assets","Other Long-Term Assets","Total Long-Term Assets","Total Assets","Total Current Liabilities",
+"Long Term Debt","Other Non-Current Liabilities","Total Long Term Liabilities","Total Liabilities","Common Stock Net","Retained Earnings (Accumulated Deficit)",
+"Comprehensive Income","Other Share Holders Equity","Share Holder Equity","Total Liabilities And Share Holders Equity"]
+Cash_On_Hand =[]
+Receivables =[]
+Inventory =[]
+Pre_Paid_Expenses =[]
+Other_Current_Assets =[]
+Total_Current_Assets =[]
+Property_Plant_And_Equipment =[]
+Long_Term_Investments =[]
+Goodwill_And_Intangible_Assets =[]
+
+Total_Long_Term_Assets =[]
+Total_Assets =[]
+Total_Current_Liabilities =[]
+Long_Term_Debt =[]
+Other_Non_Current_Liabilities =[]
+Total_Long_Term_Liabilities =[]
+Total_Liabilities =[]
+Common_Stock_Net =[]
+Retained_Earnings_Accumulated_Deficit =[]
+Comprehensive_Income =[]
+Other_Share_Holders_Equity =[]
+Share_Holder_Equity =[]
+Other_Long_Term_Assets = []
+Total_Liabilities_And_Share_Holders_Equity =[]
+links_to_tickers = []
+ticker_list = []
+full_name = []
+category = []
+revenue = []
+count = 0
+pff = 0
+browser = webdriver.Chrome(r'C:\Users\roboz.DESKTOP-F86F289\Desktop\chromedrive\chromedriver.exe') 
+
+for ticker,name in zip(ticker,ticker_names):
+    name = name.lower()
+    url2 = "https://www.macrotrends.net/stocks/charts/" + ticker + "/" + name + "/balance-sheet?freq=Q"
+    #url2 = url2
+    pff = pff + 1
+    count += 1
+    print(len(ticker_names) - count )
+    if pff == 10000:
+       break
+    if pff == 1:
+       time.sleep(2)
+            
+    browser.get(url2) 
+    #time.sleep(2)
+    html_source2 = browser.page_source  
+    soup = BeautifulSoup(html_source2,'html.parser')
+    i = 0
+    j = 2
+    try:
+        jebo = soup.find("div", {"class": "main_content_container container-fluid"})
+        jebo.find_all('a', href=True)
+        project_href = [i['href'] for i in jebo.find_all('a', href=True)]
+        links_to_tickers.append(project_href[5])
+    except:
+        pass
+
+print(links_to_tickers )
